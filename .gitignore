@@ -10,3 +10,8 @@ config/staging.yml
 config/testing.yml
 .opsmanage
 put.sh
+/.project
+/.vscode
+/bin
+/.settings
+/.classpath

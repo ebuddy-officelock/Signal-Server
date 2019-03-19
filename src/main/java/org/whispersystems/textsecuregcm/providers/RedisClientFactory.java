@@ -18,8 +18,6 @@ package org.whispersystems.textsecuregcm.providers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whispersystems.dispatch.io.RedisPubSubConnectionFactory;
-import org.whispersystems.dispatch.redis.PubSubConnection;
 import org.whispersystems.textsecuregcm.redis.ReplicatedJedisPool;
 import org.whispersystems.textsecuregcm.util.Util;
 
@@ -34,33 +32,19 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
-public class RedisClientFactory implements RedisPubSubConnectionFactory {
+public class RedisClientFactory {
 
-  private final Logger logger = LoggerFactory.getLogger(RedisClientFactory.class);
-
-  private final String    host;
-  private final int       port;
   private final ReplicatedJedisPool jedisPool;
 
   public RedisClientFactory(String url, List<String> replicaUrls) throws URISyntaxException {
-    JedisPoolConfig poolConfig = new JedisPoolConfig();
-    poolConfig.setTestOnBorrow(true);
+    // JedisPoolConfig poolConfig = new JedisPoolConfig();
+    // poolConfig.setTestOnBorrow(true);
 
-    URI redisURI = new URI(url);
-
-    this.host      = redisURI.getHost();
-    this.port      = redisURI.getPort();
-
-    JedisPool       masterPool   = new JedisPool(poolConfig, host, port, Protocol.DEFAULT_TIMEOUT, null);
+    JedisPool       masterPool   = new JedisPool(url); // FIXME: poolConfig not used
     List<JedisPool> replicaPools = new LinkedList<>();
 
     for (String replicaUrl : replicaUrls) {
-      URI replicaURI = new URI(replicaUrl);
-
-      replicaPools.add(new JedisPool(poolConfig, replicaURI.getHost(), replicaURI.getPort(),
-                                     500, Protocol.DEFAULT_TIMEOUT, null,
-                                     Protocol.DEFAULT_DATABASE, null, false, null ,
-                                     null, null));
+      replicaPools.add(new JedisPool(replicaUrl));
     }
 
     this.jedisPool = new ReplicatedJedisPool(masterPool, replicaPools);
@@ -68,18 +52,5 @@ public class RedisClientFactory implements RedisPubSubConnectionFactory {
 
   public ReplicatedJedisPool getRedisClientPool() {
     return jedisPool;
-  }
-
-  @Override
-  public PubSubConnection connect() {
-    while (true) {
-      try {
-        Socket socket = new Socket(host, port);
-        return new PubSubConnection(socket);
-      } catch (IOException e) {
-        logger.warn("Error connecting", e);
-        Util.sleep(200);
-      }
-    }
   }
 }
