@@ -201,6 +201,10 @@ public class ActiveUserCounter implements AccountDatabaseCrawlerListener {
 
   private ActiveUserTally getFinalTallies() {
     try (Jedis jedis = jedisPool.getReadResource()) {
+      if (!jedis.exists(TALLY_KEY)) {
+        // jedis.set(TALLY_KEY, mapper.writeValueAsString(new ActiveUserTally("", new Map<String, long[]>(), new Map<String, long[]>())));
+        return new ActiveUserTally("+", new HashMap<String, long[]>(), new HashMap<String, long[]>());
+      }
       return mapper.readValue(jedis.get(TALLY_KEY), ActiveUserTally.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
