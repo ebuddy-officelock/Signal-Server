@@ -99,9 +99,9 @@ public class TwilioSmsSender {
   {
     String url = "https://" + localDomain + "/v1/voice/description/" + verificationCode;
 
-    if (locale.isPresent()) {
-      url += "?l=" + locale.get();
-    }
+    // if (locale.isPresent()) {
+      // url += "?l=" + locale.get();
+    // }
 
     TwilioRestClient    client      = new TwilioRestClient(accountId, accountToken);
     CallFactory         callFactory = client.getAccount().getCallFactory();
