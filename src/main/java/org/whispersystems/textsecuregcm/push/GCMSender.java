@@ -50,9 +50,13 @@ public class GCMSender implements Managed {
   private final DirectoryQueue    directoryQueue;
   private       ExecutorService   executor;
 
-  public GCMSender(AccountsManager accountsManager, String signalKey, DirectoryQueue directoryQueue) {
+  public GCMSender(AccountsManager accountsManager, String signalKey, String signalUrl, DirectoryQueue directoryQueue) {
     this.accountsManager = accountsManager;
-    this.signalSender    = new Sender(signalKey, 50);
+    if (signalUrl == null) {
+      this.signalSender    = new Sender(signalKey, 50);
+    } else {
+      this.signalSender    = new Sender(signalKey, 50, signalUrl);
+    }
     this.directoryQueue  = directoryQueue;
   }
 

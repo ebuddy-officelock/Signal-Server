@@ -31,12 +31,19 @@ public class GcmConfiguration {
   @JsonProperty
   private String apiKey;
 
+  @JsonProperty
+  private String url;
+
   public String getApiKey() {
     return apiKey;
   }
 
   public long getSenderId() {
     return senderId;
+  }
+
+  public String getUrl() {
+    return url;
   }
 
 }

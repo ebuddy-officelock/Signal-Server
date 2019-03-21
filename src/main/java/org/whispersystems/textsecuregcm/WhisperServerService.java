@@ -185,7 +185,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     DispatchManager            dispatchManager            = new DispatchManager(messageCachePubSubFactory, Optional.of(deadLetterHandler));
     PubSubManager              pubSubManager              = new PubSubManager(cacheClient, dispatchManager);
     APNSender                  apnSender                  = new APNSender(accountsManager, config.getApnConfiguration());
-    GCMSender                  gcmSender                  = new GCMSender(accountsManager, config.getGcmConfiguration().getApiKey(), directoryQueue);
+    GCMSender                  gcmSender                  = new GCMSender(accountsManager, config.getGcmConfiguration().getApiKey(), config.getGcmConfiguration().getUrl(), directoryQueue);
     WebsocketSender            websocketSender            = new WebsocketSender(messagesManager, pubSubManager);
     AccountAuthenticator       deviceAuthenticator        = new AccountAuthenticator(accountsManager                 );
     RateLimiters               rateLimiters               = new RateLimiters(config.getLimitsConfiguration(), cacheClient);
