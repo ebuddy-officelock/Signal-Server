@@ -18,10 +18,11 @@ package org.whispersystems.textsecuregcm.s3;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import org.whispersystems.textsecuregcm.configuration.AttachmentsConfiguration;
 
@@ -32,26 +33,28 @@ public class UrlSigner {
 
   private static final long   DURATION = 60 * 60 * 1000;
 
+  private final AttachmentsConfiguration config;
   private final AWSCredentials credentials;
-  private final String bucket;
 
   public UrlSigner(AttachmentsConfiguration config) {
+    this.config      = config;
     this.credentials = new BasicAWSCredentials(config.getAccessKey(), config.getAccessSecret());
-    this.bucket      = config.getBucket();
   }
 
   public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
-    AmazonS3                    client  = new AmazonS3Client(credentials);
-    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
+    AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+
+    AmazonS3 client = AmazonS3Client.builder()
+                                    .withAccelerateModeEnabled(unaccelerated ? false : true)
+                                    .withPathStyleAccessEnabled(unaccelerated ? true : false)
+                                    .withCredentials(credentialsProvider)
+                                    .withRegion(config.getRegion())
+                                    .build();
+
+    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(config.getBucket(), String.valueOf(attachmentId), method);
     
     request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
     request.setContentType("application/octet-stream");
-
-    if (unaccelerated) {
-      client.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).build());
-    } else {
-      client.setS3ClientOptions(S3ClientOptions.builder().setAccelerateModeEnabled(true).build());
-    }
 
     return client.generatePresignedUrl(request);
   }
