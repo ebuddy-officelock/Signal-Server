@@ -101,6 +101,8 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import org.marmelo.dropwizard.metrics.bundles.MetricsUIBundle;
+
 public class WhisperServerService extends Application<WhisperServerConfiguration> {
 
   static {
@@ -135,6 +137,8 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
         return configuration.getAbuseDatabaseConfiguration();
       }
     });
+
+    bootstrap.addBundle(new MetricsUIBundle());
   }
 
   @Override

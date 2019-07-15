@@ -137,6 +137,12 @@
             <version>8.10.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.marmelo.dropwizard</groupId>
+            <artifactId>dropwizard-metrics-ui</artifactId>
+            <version>1.0</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
